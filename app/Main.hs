@@ -1,6 +1,6 @@
 module Main where
 
-import Lab2 ( runSim )
+import Game (gameMain)
 
 main :: IO ()
-main = runSim
+main = gameMain
