@@ -29,7 +29,7 @@ genChunk :: Coords -> IO Chunk
 genChunk _ = do
   tiles <-
     newArray
-      ((0, 0), (31, 31))
+      ((0, 0), (chunkSize - 1, chunkSize - 1))
       (Ground (RGB 1 0 1)) ::
       IO (IOArray (Int, Int) Tile)
   return
@@ -38,6 +38,5 @@ genChunk _ = do
 -- | Generates additional chunks as needed if there are not enough of them in the player range
 updateChunks :: Coords -> World -> World
 updateChunks coords world = world
-  where
-    -- gen list of chunk positions (with step of 16)
-    -- chunksToCheck = _
+--   where
+--     chunksToCheck =

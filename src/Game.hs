@@ -11,8 +11,8 @@ import CodeWorldRenderer
 gameMain :: IO ()
 gameMain = do
   world <- genWorld
-
-  drawingOf (draw 0 world world)
+  drawing <- draw 0 world world
+  drawingOf drawing
 
 
 -- {-# LANGUAGE OverloadedStrings #-}

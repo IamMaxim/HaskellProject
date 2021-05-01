@@ -16,6 +16,7 @@ chunkSize = 32
 halfChunkSize :: Int
 halfChunkSize = chunkSize `div` 2
 
+
 type Coords = (Int, Int)
 
 -- | Tile is a solid 1x1 unit that is strictly tied to the grid.
@@ -39,3 +40,6 @@ data World = World
     entities :: [Entity],
     player :: Entity
   }
+
+-- coordToChunkCoord :: Coords -> Coords
+-- coordToChunkCoord = _
