@@ -24,6 +24,8 @@ dependencies:
 - codeworld-api == 0.7.0
 - text == 1.2.4.0
 - random
+- containers >= 0.6.4.1
+- array >= 0.5.4
 
 library:
   source-dirs: src
