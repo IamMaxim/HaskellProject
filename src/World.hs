@@ -10,6 +10,12 @@ import Data.Array.MArray
 import qualified Data.Map as Map
 import Data.Text hiding (filter)
 
+chunkSize :: Int
+chunkSize = 32
+
+halfChunkSize :: Int
+halfChunkSize = chunkSize `div` 2
+
 type Coords = (Int, Int)
 
 -- | Tile is a solid 1x1 unit that is strictly tied to the grid.
