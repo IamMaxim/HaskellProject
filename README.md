@@ -18,6 +18,15 @@ To build and run a project, use
 
 from the project directory. This will download all the necessary dependencies, compile the project and start CodeWorld canvas server on address `http://localhost:3000`.
 
+If you are developing on a remote machine, you may use 
+
+``` sh
+ssh -L 3000:localhost:3000 user@hostname
+```
+
+to connect to the remote CodeWorld Canvas server.
+
+
 ## Adding new code
 
 Add new files to the `src` directory. Pay attention to the naming — start your files with upper case letter and name the modules with the same names as the files.

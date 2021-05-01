@@ -7,6 +7,8 @@ import CodeWorld
 import Data.Array
 import qualified Data.Map as Map
 import Data.Text hiding (filter)
+import Data.Array.MArray
+import Data.Array.IO
 
 type Coords = (Int, Int)
 
@@ -35,7 +37,7 @@ instance Drawable Entity where
 
 -- | 32x32 set of tiles. Used as a atomic unit of world generation/loading.
 data Chunk = Chunk
-  { tiles :: Array (Int, Int) Tile
+  { tiles :: IOArray (Int, Int) Tile
   }
 
 instance Drawable Chunk where
