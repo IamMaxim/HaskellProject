@@ -22,9 +22,9 @@ translate :: Coords -> Picture -> Picture
 translate (cx, cy) = translated (fromIntegral cx) (fromIntegral cy)
 
 instance Drawable Tile where
-  draw t w Void = return $ colored voidColor (rectangle 1 1)
-  draw t w (Ground color) = return $ colored color (rectangle 1 1)
-  draw t w (Wall color) = return $ colored color (rectangle 0.9 0.9)
+  draw t w Void = return $ colored voidColor (solidRectangle 1 1)
+  draw t w (Ground color) = return $ colored color (solidRectangle 1 1)
+  draw t w (Wall color) = return $ colored color (solidRectangle 0.9 0.9)
 
 instance Drawable Entity where
   draw t w entity = return $ (lettering . symbol) entity
@@ -34,17 +34,13 @@ instance Drawable World where
     let assocs = zip filteredChunkCoords (map (\coords -> chunks world Map.! coords) filteredChunkCoords)
     pictures <- mapM
       (\(coords, chunk) ->
-        draw t w chunk >>= (return . translate coords))
+        draw t w chunk >>= (return . translate (coords `mul` chunkSize)))
       assocs
-    return $ foldr (<>) blank pictures
-    -- pics <- mapM (\coords -> (coords, draw t w (chunks world Map.! coords))) filteredChunkCoords :: IO (Coords, Picture)
---     foldMap
---       ( \(coords, p) ->
---           translate
---             coords
---             p
---       )
---       pics
+    let tilesPicture = foldr (<>) blank pictures
+
+    -- TODO: implement entities drawing
+
+    return tilesPicture
     where
       centerPos = (pos . player) world
       filteredChunkCoords :: [Coords]

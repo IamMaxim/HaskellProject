@@ -11,6 +11,9 @@ import CodeWorldRenderer
 gameMain :: IO ()
 gameMain = do
   world <- genWorld
+  -- Update the world once to generate more chunks around player
+  world <- updateChunks ((pos . player) world) world
+
   drawing <- draw 0 world world
   drawingOf drawing
 

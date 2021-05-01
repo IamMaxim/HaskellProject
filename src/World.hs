@@ -19,6 +19,9 @@ halfChunkSize = chunkSize `div` 2
 
 type Coords = (Int, Int)
 
+mul :: Coords -> Int -> Coords
+mul (x, y) mult = (x * mult, y * mult)
+
 -- | Tile is a solid 1x1 unit that is strictly tied to the grid.
 data Tile = Void | Ground Color | Wall Color
 
@@ -41,5 +44,5 @@ data World = World
     player :: Entity
   }
 
--- coordToChunkCoord :: Coords -> Coords
--- coordToChunkCoord = _
+coordToChunkCoord :: Coords -> Coords
+coordToChunkCoord (cx, cy) = (cx `div` chunkSize, cy `div` chunkSize)
