@@ -5,6 +5,7 @@ module Game where
 import World
 import CodeWorld
 import WorldGen
+import CodeWorldRenderer
 
 
 gameMain :: IO ()

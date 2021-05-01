@@ -1,9 +1,16 @@
--- |
+{-# LANGUAGE OverloadedStrings #-}
+
 module CodeWorldRenderer where
 
 import CodeWorld
 import qualified Data.Map as Map
 import World
+    ( World(player, chunks),
+      Chunk,
+      Entity(pos, symbol),
+      Tile(..),
+      Coords,
+      voidColor )
 
 renderRange = 20
 
