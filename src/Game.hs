@@ -4,13 +4,14 @@ module Game where
 
 import World
 import CodeWorld
+import WorldGen
 
 
-game :: IO ()
-game = do
-  let world = genWorld
+gameMain :: IO ()
+gameMain = do
+  world <- genWorld
 
-  drawingOf world
+  drawingOf (draw 0 world world)
 
 
 -- {-# LANGUAGE OverloadedStrings #-}
