@@ -21,8 +21,6 @@ type Coords = (Int, Int)
 -- | Tile is a solid 1x1 unit that is strictly tied to the grid.
 data Tile = Void | Ground Color | Wall Color
 
-voidColor = RGB 0.1 0.1 0.1
-
 -- | Entity is something "living" (or at least able to move freely).
 data Entity = Entity
   { pos :: Coords,

@@ -10,9 +10,10 @@ import World
       Entity(pos, symbol),
       Tile(..),
       Coords,
-      voidColor )
+      
 
 renderRange = 20
+voidColor = RGB 0.1 0.1 0.1
 
 -- | Defines a renderable object.
 class Drawable a where
