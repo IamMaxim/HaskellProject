@@ -5,14 +5,15 @@ module CodeWorldRenderer where
 import CodeWorld
 import qualified Data.Map as Map
 import World
-    ( World(player, chunks),
-      Chunk,
-      Entity(pos, symbol),
-      Tile(..),
-      Coords,
-      
+  ( Chunk,
+    Coords,
+    Entity (pos, symbol),
+    Tile (..),
+    World (chunks, player),
+  )
 
 renderRange = 20
+
 voidColor = RGB 0.1 0.1 0.1
 
 -- | Defines a renderable object.
