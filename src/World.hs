@@ -5,10 +5,10 @@ module World where
 
 import CodeWorld
 import Data.Array
+import Data.Array.IO
+import Data.Array.MArray
 import qualified Data.Map as Map
 import Data.Text hiding (filter)
-import Data.Array.MArray
-import Data.Array.IO
 
 type Coords = (Int, Int)
 
