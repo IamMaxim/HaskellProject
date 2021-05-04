@@ -7,6 +7,10 @@ import Data.Array.IO
 import qualified Data.Map as Map
 import World
 import Control.Monad
+import Data.Text (pack)
+import Inventory
+
+import System.Random
 
 renderRange = 20
 
@@ -71,3 +75,46 @@ instance Drawable Chunk where
              draw t w tile >>= return . translate coords)
           assocs
         return $ foldr (<>) blank pictures
+
+instance (Drawable item) => Drawable (InventoryItem item) where
+  draw t w inventoryItem = do
+    itemPicture <- draw t w (item inventoryItem)
+
+    let itemAmountText = pack (show (amount inventoryItem))
+
+    return (badge (lettering itemAmountText) <> itemPicture)
+
+instance Drawable TestItem where
+  draw t w (TestItem name) = do
+    color <- randomColor
+
+    return $ colored color (solidRectangle 0.9 0.9)
+
+instance (Drawable item, Eq item) => Drawable (Inventory item) where
+  draw t w inventory = do
+      itemDrawings <- mapM (
+        \item -> do
+          ownPicture <- draw t w item
+          let active = Just item == activeItem inventory
+          return (inventoryCell active <> ownPicture)
+          ) (items inventory)
+
+      let reducer = \picture acc -> picture <> translated 1 0 acc
+
+      return $ foldr reducer blank itemDrawings
+
+badge :: Picture -> Picture
+badge pic = translated 0.25 (-0.25) (scaled 0.3 0.3 pic)
+
+inventoryCell :: Bool -- is selected
+  -> Picture
+inventoryCell active = colored color (rectangle 1 1)
+  where
+    color = if active then green else black
+
+randomColor :: IO Color
+randomColor = do
+  r <- randomIO :: IO Double
+  g <- randomIO :: IO Double
+  b <- randomIO :: IO Double
+  return $ RGB r g b

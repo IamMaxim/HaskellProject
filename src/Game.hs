@@ -6,7 +6,7 @@ import World
 import CodeWorld
 import WorldGen
 import CodeWorldRenderer
-
+import Inventory
 
 gameMain :: IO ()
 gameMain = do
@@ -14,8 +14,13 @@ gameMain = do
   -- Update the world once to generate more chunks around player
   world <- updateChunks ((pos . player) world) world
 
-  drawing <- draw 0 world world
-  drawingOf drawing
+  let inventory = defaultTestInventory
+
+  drawing <- draw 0 world inventory
+
+  drawingOf  drawing
+  -- drawing <- draw 0 world world
+  -- drawingOf drawing
 
 
 -- {-# LANGUAGE OverloadedStrings #-}
