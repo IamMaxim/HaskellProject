@@ -27,7 +27,7 @@ library
   exposed-modules:
       CodeWorldRenderer
       Game
-      Input
+      Player
       World
       WorldGen
   other-modules:

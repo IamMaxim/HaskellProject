@@ -40,8 +40,11 @@ instance Drawable World where
     let tilesPicture = foldr (<>) blank pictures
 
     -- TODO: implement entities drawing
+    entitiesPicture <- foldMap (draw t w) (entities world)
 
-    return tilesPicture
+    playerPicture <- draw t w (player world)
+
+    return $ playerPicture <> entitiesPicture <> tilesPicture
     where
       centerPos = (pos . player) world
       filteredChunkCoords :: [Coords]

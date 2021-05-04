@@ -24,7 +24,8 @@ genWorld = do
               name = "Player",
               symbol = "P"
             },
-        entities = []
+        entities = [],
+        time = 0
       }
 
 -- | Generates a (for now) stub chunk of ground tiles.
