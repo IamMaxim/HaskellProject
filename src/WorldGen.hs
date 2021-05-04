@@ -10,6 +10,7 @@ import Data.Array.MArray
 import Data.Map
 import System.Random
 import World
+import CodeWorldRenderer
 
 -- | Generates the initial world state
 genWorld :: IO World
@@ -30,10 +31,7 @@ genWorld = do
 -- | Generates a (for now) stub chunk of ground tiles.
 genChunk :: Coords -> IO Chunk
 genChunk _ = do
-  r <- randomIO :: IO Double
-  g <- randomIO :: IO Double
-  b <- randomIO :: IO Double
-  let color = RGB r g b
+  color <- randomColor
   backgroundTiles <-
     newArray
       ((0, 0), (chunkSize - 1, chunkSize - 1))
