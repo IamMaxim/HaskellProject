@@ -178,3 +178,10 @@ packages:
       sha256: e17dfafde2f226674cffd56b1f445c332b6e5855860f79dedd9de0b6916e7ff0
       size: 1135
     hackage: array-0.5.4.0@sha256:2b2425e01d592c0e66594c008405ea4c6f6e4d929daeddabbd81be9bb49ebffa,1588
+- original:
+    hackage: random-1.1
+  completed:
+    pantry-tree:
+      sha256: 14a1b01728c5584e87c9fa00746a66e28ffd89dd2c0eabd334c8463953496e1b
+      size: 637
+    hackage: random-1.1@sha256:7b67624fd76ddf97c206de0801dc7e888097e9d572974be9b9ea6551d76965df,1777

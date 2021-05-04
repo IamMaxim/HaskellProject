@@ -8,6 +8,7 @@ import Control.Monad
 import Data.Array.IO
 import Data.Array.MArray
 import Data.Map
+import System.Random
 import World
 
 -- | Generates the initial world state
@@ -26,15 +27,28 @@ genWorld = do
         entities = []
       }
 
+-- | Generates a (for now) stub chunk of ground tiles.
 genChunk :: Coords -> IO Chunk
 genChunk _ = do
+  r <- randomIO :: IO Double
+  g <- randomIO :: IO Double
+  b <- randomIO :: IO Double
+  let color = RGB r g b
+  backgroundTiles <-
+    newArray
+      ((0, 0), (chunkSize - 1, chunkSize - 1))
+      (Ground color) ::
+      IO (IOArray (Int, Int) Tile)
   tiles <-
     newArray
       ((0, 0), (chunkSize - 1, chunkSize - 1))
-      (Ground (RGB 1 0 1)) ::
+      Void ::
       IO (IOArray (Int, Int) Tile)
   return
-    Chunk {tiles = tiles}
+    Chunk
+      { backgroundTiles = backgroundTiles,
+        tiles = tiles
+      }
 
 -- | Generates additional chunks as needed if there are not enough of them in the player range
 updateChunks :: Coords -> World -> IO World

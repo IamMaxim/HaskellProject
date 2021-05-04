@@ -11,7 +11,7 @@ import qualified Data.Map as Map
 import Data.Text hiding (filter)
 
 chunkSize :: Int
-chunkSize = 32
+chunkSize = 8
 
 halfChunkSize :: Int
 halfChunkSize = chunkSize `div` 2
@@ -34,7 +34,9 @@ data Entity = Entity
 
 -- | 32x32 set of tiles. Used as a atomic unit of world generation/loading.
 data Chunk = Chunk
-  { tiles :: IOArray (Int, Int) Tile
+  {
+    backgroundTiles :: IOArray (Int, Int) Tile,
+    tiles :: IOArray (Int, Int) Tile
   }
 
 -- | State of the entire game world.

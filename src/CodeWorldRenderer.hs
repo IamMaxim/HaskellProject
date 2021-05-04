@@ -22,7 +22,8 @@ translate :: Coords -> Picture -> Picture
 translate (cx, cy) = translated (fromIntegral cx) (fromIntegral cy)
 
 instance Drawable Tile where
-  draw t w Void = return $ colored voidColor (solidRectangle 1 1)
+  -- draw t w Void = return $ colored voidColor (solidRectangle 1 1)
+  draw t w Void = return blank
   draw t w (Ground color) = return $ colored color (solidRectangle 1 1)
   draw t w (Wall color) = return $ colored color (solidRectangle 0.9 0.9)
 
@@ -52,18 +53,21 @@ instance Drawable World where
       -- True if given coords is not in render range and should be culled
       culled :: Coords -> Bool
       culled (x, y) =
-        x - cx - 16 < renderRange
-          && x - cx + 16 > renderRange
-          && y - cy - 16 < renderRange
-          && y - cy + 16 > renderRange
+        x - cx - chunkSize < renderRange
+          && x - cx + chunkSize > renderRange
+          && y - cy - chunkSize < renderRange
+          && y - cy + chunkSize > renderRange
         where
           (cx, cy) = centerPos
 
 instance Drawable Chunk where
-  draw t w chunk = do
-    assocs <- ((getAssocs . tiles) chunk :: IO [((Int, Int), Tile)])
-    pictures <- mapM
-      (\(coords, tile) ->
-         draw t w tile >>= return . translate coords)
-      assocs
-    return $ foldr (<>) blank pictures
+  draw t w chunk = drawTiles t w (tiles chunk) <> drawTiles t w (backgroundTiles chunk)
+    where
+      drawTiles :: Double -> World -> IOArray (Int, Int) Tile -> IO Picture
+      drawTiles t w tiles = do
+        assocs <- (getAssocs tiles :: IO [((Int, Int), Tile)])
+        pictures <- mapM
+          (\(coords, tile) ->
+             draw t w tile >>= return . translate coords)
+          assocs
+        return $ foldr (<>) blank pictures

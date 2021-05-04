@@ -23,7 +23,7 @@ dependencies:
 - base >= 4.7 && < 5
 - codeworld-api == 0.7.0
 - text == 1.2.4.0
-- random
+- random >= 1.1
 - containers >= 0.6.4.1
 - array >= 0.5.4
 
