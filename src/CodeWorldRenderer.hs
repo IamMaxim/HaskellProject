@@ -2,11 +2,11 @@
 
 module CodeWorldRenderer where
 
-import CodeWorld
-import Data.Array.IO
-import qualified Data.Map as Map
-import World
+import CodeWorld hiding (Vector)
 import Control.Monad
+import qualified Data.Map as Map
+import Data.Vector
+import World
 
 renderRange = 20
 
@@ -16,61 +16,55 @@ voidColor = RGB 0.1 0.1 0.1
 class Drawable a where
   -- | renders a tile based on current time and world state. No transformations
   -- should be applied inside.
-  draw :: Double -> World -> a -> IO Picture
+  draw :: Double -> World -> a -> Picture
 
 translate :: Coords -> Picture -> Picture
 translate (cx, cy) = translated (fromIntegral cx) (fromIntegral cy)
 
 instance Drawable Tile where
   -- draw t w Void = return $ colored voidColor (solidRectangle 1 1)
-  draw t w Void = return blank
-  draw t w (Ground color) = return $ colored color (solidRectangle 1 1)
-  draw t w (Wall color) = return $ colored color (solidRectangle 0.9 0.9)
+  draw t w Void = blank
+  draw t w (Ground color) = colored color (solidRectangle 1 1)
+  draw t w (Wall color) = colored color (solidRectangle 0.9 0.9)
 
 instance Drawable Entity where
-  draw t w entity = return $ (lettering . symbol) entity
+  draw t w entity = (lettering . symbol) entity
 
 instance Drawable World where
-  draw t w world = do
-    let assocs = zip filteredChunkCoords (map (\coords -> chunks world Map.! coords) filteredChunkCoords)
-    pictures <- mapM
-      (\(coords, chunk) ->
-        draw t w chunk >>= (return . translate (coords `mul` chunkSize)))
-      assocs
-    let tilesPicture = foldr (<>) blank pictures
+  draw t w world =
+    playerPicture <> entitiesPicture <> tilesPicture
+      where
+        assocs = Prelude.zip filteredChunkCoords (Prelude.map (\coords -> chunks world Map.! coords) filteredChunkCoords)
 
-    -- TODO: implement entities drawing
-    entitiesPicture <- foldMap (draw t w) (entities world)
+        playerPicture = draw t w (player world)
 
-    playerPicture <- draw t w (player world)
+        entitiesPicture = Prelude.foldMap (draw t w) (entities world)
 
-    return $ playerPicture <> entitiesPicture <> tilesPicture
-    where
-      centerPos = (pos . player) world
-      filteredChunkCoords :: [Coords]
-      filteredChunkCoords =
-        filter
-          (not . culled)
-          ((Map.keys . chunks) world)
+        tilesPicture =
+          Prelude.foldMap
+            (\(coords, chunk) -> translate (coords `mul` chunkSize) (draw t w chunk))
+            assocs
 
-      -- True if given coords is not in render range and should be culled
-      culled :: Coords -> Bool
-      culled (x, y) =
-        x - cx - chunkSize < renderRange
-          && x - cx + chunkSize > renderRange
-          && y - cy - chunkSize < renderRange
-          && y - cy + chunkSize > renderRange
-        where
-          (cx, cy) = centerPos
+        centerPos = (pos . player) world
+        filteredChunkCoords :: [Coords]
+        filteredChunkCoords =
+          Prelude.filter
+            (not . culled)
+            ((Map.keys . chunks) world)
+
+        -- True if given coords is not in render range and should be culled
+        culled :: Coords -> Bool
+        culled (x, y) =
+          x - cx - chunkSize < renderRange
+            && x - cx + chunkSize > renderRange
+            && y - cy - chunkSize < renderRange
+            && y - cy + chunkSize > renderRange
+          where
+            (cx, cy) = centerPos
 
 instance Drawable Chunk where
   draw t w chunk = drawTiles t w (tiles chunk) <> drawTiles t w (backgroundTiles chunk)
     where
-      drawTiles :: Double -> World -> IOArray (Int, Int) Tile -> IO Picture
-      drawTiles t w tiles = do
-        assocs <- (getAssocs tiles :: IO [((Int, Int), Tile)])
-        pictures <- mapM
-          (\(coords, tile) ->
-             draw t w tile >>= return . translate coords)
-          assocs
-        return $ foldr (<>) blank pictures
+      drawTiles :: Double -> World -> Vector (Vector Tile) -> Picture
+      drawTiles t w tiles =
+        Prelude.foldMap (\(coords, tile) -> translate coords (draw tile)) tiles

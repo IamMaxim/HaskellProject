@@ -7,14 +7,15 @@ import World
 
 data MoveDirection = MoveUp | MoveDown | MoveLeft | MoveRight
 
-move :: Event -> World -> Entity -> IO Entity
+move :: Event -> World -> Entity -> Entity
 move event world entity = case dir of
-  Nothing -> return entity
-  Just d -> do
-    targetTile <- tileAt world (newPos d (pos entity))
+  Nothing -> entity
+  Just d ->
     case targetTile of
-      Void -> return entity { pos = newPos d (pos entity) }
-      _ -> return entity
+      Void -> entity { pos = newPos d (pos entity) }
+      _ -> entity
+      where
+        targetTile = tileAt world (newPos d (pos entity))
   where
     dir = eventToDirection event
 

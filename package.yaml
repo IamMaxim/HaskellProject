@@ -26,6 +26,7 @@ dependencies:
 - random >= 1.1
 - containers >= 0.6.4.1
 - array >= 0.5.4
+- vector >= 0.12.3
 
 library:
   source-dirs: src

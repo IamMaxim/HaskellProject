@@ -3,10 +3,8 @@
 -- | Contains the data structure and functions used to manipulate the world.
 module World where
 
-import CodeWorld
-import Data.Array
-import Data.Array.IO
-import Data.Array.MArray
+import CodeWorld hiding (Vector)
+import Data.Vector
 import qualified Data.Map as Map
 import Data.Text hiding (filter)
 
@@ -33,8 +31,11 @@ data Entity = Entity
 
 -- | 32x32 set of tiles. Used as a atomic unit of world generation/loading.
 data Chunk = Chunk
-  { backgroundTiles :: IOArray (Int, Int) Tile,
-    tiles :: IOArray (Int, Int) Tile
+  {
+--     backgroundTiles :: IOArray (Int, Int) Tile,
+--     tiles :: IOArray (Int, Int) Tile
+    backgroundTiles :: Vector (Vector Tile),
+    tiles :: Vector (Vector Tile)
   }
 
 -- | State of the entire game world.
@@ -56,10 +57,11 @@ clampCoordToChunk (cx, cy) = (cx `mod` chunkSize, cy `mod` chunkSize)
 
 -- | Computes a chunk for the given coord and extracts the tile at given
 -- position.
-tileAt :: World -> Coords -> IO Tile
+tileAt :: World -> Coords -> Tile
 tileAt world coords = case chunk of
-  Nothing -> return Void
-  Just c -> readArray (tiles c) (clampCoordToChunk coords)
+  Nothing -> Void
+  Just c -> tiles c ! cx ! cy
   where
     chunk :: Maybe Chunk
     chunk = Map.lookup (coordToChunkCoord coords) (chunks world)
+    (cx, cy) = clampCoordToChunk coords
