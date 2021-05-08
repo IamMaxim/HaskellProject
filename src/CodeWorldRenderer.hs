@@ -33,7 +33,9 @@ instance Drawable World where
     where
       assocs = Prelude.zip filteredChunkCoords (Prelude.map (\coords -> chunks world Map.! coords) filteredChunkCoords)
 
-      drawEnt ent = translate (pos ent `sub` centerPos) (draw t w ent)
+      centerPos = (pos . player) world
+      relativePos position = position `sub` centerPos
+      drawEnt ent = translate (relativePos (pos ent)) (draw t w ent)
 
       playerPicture = draw t w (player world)
       entitiesPicture =
@@ -41,10 +43,9 @@ instance Drawable World where
 
       tilesPicture =
         Prelude.foldMap
-          (\(coords, chunk) -> translate ((coords `mul` chunkSize) `sub` centerPos) (draw t w chunk))
+          (\(coords, chunk) -> translate (relativePos (coords `mul` chunkSize)) (draw t w chunk))
           assocs
 
-      centerPos = (pos . player) world
       filteredChunkCoords :: [Coords]
       filteredChunkCoords =
         Prelude.filter
