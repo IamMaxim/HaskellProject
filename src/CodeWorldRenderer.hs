@@ -33,38 +33,45 @@ instance Drawable Entity where
 instance Drawable World where
   draw t w world =
     playerPicture <> entitiesPicture <> tilesPicture
-      where
-        assocs = Prelude.zip filteredChunkCoords (Prelude.map (\coords -> chunks world Map.! coords) filteredChunkCoords)
+    where
+      assocs = Prelude.zip filteredChunkCoords (Prelude.map (\coords -> chunks world Map.! coords) filteredChunkCoords)
 
-        playerPicture = draw t w (player world)
+      playerPicture = draw t w (player world)
 
-        entitiesPicture = Prelude.foldMap (draw t w) (entities world)
+      entitiesPicture = Prelude.foldMap (draw t w) (entities world)
 
-        tilesPicture =
-          Prelude.foldMap
-            (\(coords, chunk) -> translate (coords `mul` chunkSize) (draw t w chunk))
-            assocs
+      tilesPicture =
+        Prelude.foldMap
+          (\(coords, chunk) -> translate (coords `mul` chunkSize) (draw t w chunk))
+          assocs
 
-        centerPos = (pos . player) world
-        filteredChunkCoords :: [Coords]
-        filteredChunkCoords =
-          Prelude.filter
-            (not . culled)
-            ((Map.keys . chunks) world)
+      centerPos = (pos . player) world
+      filteredChunkCoords :: [Coords]
+      filteredChunkCoords =
+        Prelude.filter
+          (not . culled)
+          ((Map.keys . chunks) world)
 
-        -- True if given coords is not in render range and should be culled
-        culled :: Coords -> Bool
-        culled (x, y) =
-          x - cx - chunkSize < renderRange
-            && x - cx + chunkSize > renderRange
-            && y - cy - chunkSize < renderRange
-            && y - cy + chunkSize > renderRange
-          where
-            (cx, cy) = centerPos
+      -- True if given coords is not in render range and should be culled
+      culled :: Coords -> Bool
+      culled (x, y) =
+        x - cx - chunkSize < renderRange
+          && x - cx + chunkSize > renderRange
+          && y - cy - chunkSize < renderRange
+          && y - cy + chunkSize > renderRange
+        where
+          (cx, cy) = centerPos
 
 instance Drawable Chunk where
   draw t w chunk = drawTiles t w (tiles chunk) <> drawTiles t w (backgroundTiles chunk)
     where
       drawTiles :: Double -> World -> Vector (Vector Tile) -> Picture
-      drawTiles t w tiles =
-        Prelude.foldMap (\(coords, tile) -> translate coords (draw tile)) tiles
+      drawTiles t w tiles = pictures tilesDrawn
+        where
+          tile2D = Prelude.map toList (toList tiles)
+          tilesDrawn =
+            [ let pic = draw t w tile
+              in translated x y pic
+              | (y, tileRow) <- Prelude.zip [0 ..] tile2D,
+                (x, tile) <- Prelude.zip [0 ..] tileRow
+            ]
