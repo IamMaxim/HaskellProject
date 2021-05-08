@@ -91,13 +91,13 @@ instance (Drawable item, Eq item) => Drawable (Inventory item) where
   draw t w inventory = Prelude.foldr reducer blank itemDrawings
     where
       itemDrawings =
-        Prelude.map
-          ( \item ->
-              let ownPicture = draw t w item
-                  active = Just item == activeItem inventory
-               in (inventoryCell active <> ownPicture)
-          )
-          (items inventory)
+        Prelude.zipWith (
+          \index maybeItem ->
+              let ownPicture = case maybeItem of 
+                    Just item -> draw t w item
+                    Nothing  -> blank -- maybe add drawing for empty inventory cell ?
+                  active = index == activeItemIndex inventory
+                in (inventoryCell active <> ownPicture)) [0 ..] (items inventory)
       reducer picture acc = picture <> translated 1 0 acc
 
 badge :: Picture -> Picture
@@ -106,13 +106,5 @@ badge pic = translated 0.25 (-0.25) (scaled 0.3 0.3 pic)
 inventoryCell ::
   Bool -> -- is selected
   Picture
-inventoryCell active = colored color (rectangle 1 1)
-  where
-    color = if active then green else black
-
-randomColor :: IO Color
-randomColor = do
-  r <- randomIO :: IO Double
-  g <- randomIO :: IO Double
-  b <- randomIO :: IO Double
-  return $ RGB r g b
+inventoryCell True = thickRectangle 0.05 1 1
+inventoryCell False = colored gray (rectangle 1 1)

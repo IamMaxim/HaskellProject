@@ -11,32 +11,34 @@ instance (Eq item) => Eq (InventoryItem item) where
 
 
 data Inventory item = Inventory {
-    activeItem :: Maybe (InventoryItem item),
-    items :: [InventoryItem item]
+    activeItemIndex :: Int,
+    items :: [Maybe (InventoryItem item)]
 }
 
-defaultInventory ::
-    Int -- inventory size
-    -> (Int -> InventoryItem item) -- initializator for an ith item cell, will be iterated in 1..size
+inventorySize :: Int
+inventorySize = 9
+
+emptyInventory :: Inventory item
+emptyInventory = createInventory (const Nothing)
+
+createInventory ::
+    (Int -> Maybe (InventoryItem item)) -- initializator for an ith item cell, will be iterated in 1..size
     -> Inventory item
-defaultInventory size itemInitializer = Inventory {
+createInventory itemInitializer = Inventory {
     items = items,
-    activeItem = headOrNothing items
+    activeItemIndex = 0
 }
     where
-        items = map itemInitializer [1..size]
+        items = map itemInitializer [1..inventorySize]
 
 newtype TestItem = TestItem String deriving Eq
 
-defaultTestInventory :: Inventory TestItem
-defaultTestInventory = defaultInventory 10 creator
+createTestInventory :: Inventory TestItem
+createTestInventory = createInventory creator
     where
-        creator = \i -> InventoryItem {
-            amount = i,
-            item = TestItem (show i)
-        }
-
-
-headOrNothing :: [a] -> Maybe a
-headOrNothing [] = Nothing
-headOrNothing (x:xs) = Just x
+        creator = \i -> case () of
+                _ | even i -> Just InventoryItem {
+                    amount = i,
+                    item = TestItem (show i)
+                }
+                    | otherwise -> Nothing
