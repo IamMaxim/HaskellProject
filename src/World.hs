@@ -20,6 +20,9 @@ type Coords = (Int, Int)
 mul :: Coords -> Int -> Coords
 mul (x, y) mult = (x * mult, y * mult)
 
+sub :: Coords -> Coords -> Coords
+sub (x1, y1) (x2, y2) = (x1 - x2, y1 - y2)
+
 -- | Tile is a solid 1x1 unit that is strictly tied to the grid.
 data Tile = Void | Ground Color | Wall Color
 
