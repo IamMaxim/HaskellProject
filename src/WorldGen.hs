@@ -16,7 +16,7 @@ genWorld = do
   chunk <- genChunk (0, 0)
   return
     World
-      { chunks = singleton (0, 0) chunk,
+      { chunks = Data.Map.singleton (0, 0) chunk,
         player =
           Entity
             { pos = (0, 0),
