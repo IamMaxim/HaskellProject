@@ -32,8 +32,6 @@ data Entity = Entity
 -- | 32x32 set of tiles. Used as a atomic unit of world generation/loading.
 data Chunk = Chunk
   {
---     backgroundTiles :: IOArray (Int, Int) Tile,
---     tiles :: IOArray (Int, Int) Tile
     backgroundTiles :: Vector (Vector Tile),
     tiles :: Vector (Vector Tile)
   }

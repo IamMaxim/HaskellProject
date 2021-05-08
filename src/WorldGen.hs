@@ -34,16 +34,6 @@ genChunk _ = do
   g <- randomIO :: IO Double
   b <- randomIO :: IO Double
   let color = RGB r g b
-  -- backgroundTiles <-
-  --   newArray
-  --     ((0, 0), (chunkSize - 1, chunkSize - 1))
-  --     (Ground color) ::
-  --     IO (IOArray (Int, Int) Tile)
-  -- tiles <-
-  --   newArray
-  --     ((0, 0), (chunkSize - 1, chunkSize - 1))
-  --     Void ::
-  --     IO (IOArray (Int, Int) Tile)
   return
     Chunk
       { backgroundTiles = genTilesArray chunkSize (Ground color),
