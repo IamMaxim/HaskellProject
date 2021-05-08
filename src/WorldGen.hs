@@ -9,6 +9,7 @@ import Data.Vector
 import Data.Map
 import System.Random
 import World
+import CodeWorldRenderer
 
 -- | Generates the initial world state
 genWorld :: IO World

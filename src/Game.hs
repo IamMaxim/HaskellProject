@@ -8,6 +8,7 @@ import Player
 import System.IO.Unsafe (unsafePerformIO)
 import World
 import WorldGen
+import Inventory
 
 gameMain :: IO ()
 gameMain = do
