@@ -57,6 +57,11 @@ changeActiveItem inventory newActiveIndex
 addToInventoryItem :: InventoryItem item -> InventoryItem item
 addToInventoryItem item = item { amount = amount item + 1 }
 
+removeFromInventoryItem :: InventoryItem item -> Maybe (InventoryItem item)
+removeFromInventoryItem item = case amount item of
+    1 -> Nothing
+    n -> Just item{amount=n-1}
+
 addItem :: (Eq item) =>
      Inventory item -- current invenory
      -> item -- new item
@@ -85,3 +90,21 @@ addItem inventory newItem = inventory { items = updatedItems }
                             item = newItem
                         }
                 Nothing -> inventoryItems -- Maybe do something if insertion falied
+
+removeItem :: (Eq item) =>
+    Inventory item -- current invenory
+     -> item -- to be removed item
+     ->  Inventory item
+removeItem inventory removingItem = inventory {items = updatedItems}
+    where
+        inventoryItems = items inventory
+        currentItems = Data.Vector.map (fmap item) inventoryItems
+
+        itemIndexMaybe = Data.Vector.elemIndex (Just removingItem) currentItems
+
+        updatedItems = case itemIndexMaybe of
+            Just itemIndex -> case inventoryItems !? itemIndex of
+                Just (Just inventoryItem) -> inventoryItems // [(itemIndex, removeFromInventoryItem inventoryItem)]
+                _ -> inventoryItems
+            _ -> inventoryItems
+
