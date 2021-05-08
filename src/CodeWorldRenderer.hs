@@ -66,12 +66,12 @@ instance Drawable Chunk where
   draw t w chunk = drawTiles t w (tiles chunk) <> drawTiles t w (backgroundTiles chunk)
     where
       drawTiles :: Double -> World -> Vector (Vector Tile) -> Picture
-      drawTiles t w tiles = pictures tilesDrawn
-        where
-          tile2D = Prelude.map toList (toList tiles)
-          tilesDrawn =
-            [ let pic = draw t w tile
-              in translated x y pic
-              | (y, tileRow) <- Prelude.zip [0 ..] tile2D,
-                (x, tile) <- Prelude.zip [0 ..] tileRow
-            ]
+      drawTiles t w tiles =
+        let tile2D = Prelude.map toList (toList tiles)
+            tilesDrawn =
+              [ let pic = draw t w tile
+                 in translated x y pic
+                | (y, tileRow) <- Prelude.zip [0 ..] tile2D,
+                  (x, tile) <- Prelude.zip [0 ..] tileRow
+              ]
+         in pictures tilesDrawn
