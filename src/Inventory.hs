@@ -42,3 +42,11 @@ createTestInventory = createInventory creator
                     item = TestItem (show i)
                 }
                     | otherwise -> Nothing
+
+changeActiveItem ::
+    Inventory item -- current inventory
+    -> Int -- new active index
+    -> Inventory item -- new inventory
+changeActiveItem inventory newActiveIndex
+    | newActiveIndex < 0 || newActiveIndex > inventorySize = inventory
+    | otherwise = inventory { activeItemIndex = newActiveIndex }
