@@ -11,6 +11,7 @@ import Inventory
 import System.Random
 import World
 
+renderRange :: Int
 renderRange = 20
 
 -- | Defines a renderable object.
@@ -32,7 +33,7 @@ instance Drawable Entity where
 
 instance Drawable World where
   draw t w world =
-    playerPicture <> entitiesPicture <> tilesPicture
+    playerInventoryShifted <> playerPicture <> entitiesPicture <> tilesPicture
     where
       assocs = Prelude.zip filteredChunkCoords (Prelude.map (\coords -> chunks world Map.! coords) filteredChunkCoords)
 
@@ -41,6 +42,9 @@ instance Drawable World where
       playerPicture = drawEnt (player world)
       entitiesPicture =
         Prelude.foldMap drawEnt (entities world)
+
+      playerInventory = draw t w (inventory (player world))
+      playerInventoryShifted = translated 0.0 (-9.0) playerInventory
 
       tilesPicture =
         Prelude.foldMap
@@ -87,21 +91,24 @@ instance (Drawable item) => Drawable (InventoryItem item) where
 instance Drawable TestItem where
   draw t w (TestItem name) = colored yellow (solidRectangle 0.9 0.9)
 
-instance (Drawable item, Eq item) => Drawable (Inventory item) where
+instance (Drawable item) => Drawable (Inventory item) where
   draw t w inventory = Prelude.foldr reducer blank itemDrawings
     where
       itemDrawings =
         Prelude.zipWith (
           \index maybeItem ->
-              let ownPicture = case maybeItem of 
+              let ownPicture = case maybeItem of
                     Just item -> draw t w item
-                    Nothing  -> blank -- maybe add drawing for empty inventory cell ?
+                    Nothing  -> emptyInventoryItemPicture
                   active = index == activeItemIndex inventory
                 in (inventoryCell active <> ownPicture)) [0 ..] (items inventory)
       reducer picture acc = picture <> translated 1 0 acc
 
 badge :: Picture -> Picture
 badge pic = translated 0.25 (-0.25) (scaled 0.3 0.3 pic)
+
+emptyInventoryItemPicture :: Picture
+emptyInventoryItemPicture = colored white (solidRectangle 1 1 )
 
 inventoryCell ::
   Bool -> -- is selected

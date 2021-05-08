@@ -11,6 +11,8 @@ import System.Random
 import World
 import CodeWorldRenderer
 
+import Inventory
+
 -- | Generates the initial world state
 genWorld :: IO World
 genWorld = do
@@ -22,7 +24,8 @@ genWorld = do
           Entity
             { pos = (0, 0),
               name = "Player",
-              symbol = "P"
+              symbol = "P",
+              inventory = emptyInventory
             },
         entities = [],
         time = 0
