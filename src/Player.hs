@@ -20,10 +20,10 @@ move event world entity = case dir of
     dir = eventToDirection event
 
 eventToDirection :: Event -> Maybe MoveDirection
-eventToDirection (KeyPress "w") = Just MoveUp
-eventToDirection (KeyPress "a") = Just MoveLeft
-eventToDirection (KeyPress "s") = Just MoveDown
-eventToDirection (KeyPress "d") = Just MoveRight
+eventToDirection (KeyPress "W") = Just MoveUp
+eventToDirection (KeyPress "A") = Just MoveLeft
+eventToDirection (KeyPress "S") = Just MoveDown
+eventToDirection (KeyPress "D") = Just MoveRight
 eventToDirection _ = Nothing
 
 -- -- | Generalized move function that accepts event to check if it is possible
