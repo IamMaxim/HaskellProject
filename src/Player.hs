@@ -12,10 +12,10 @@ move event world entity = case dir of
   Nothing -> entity
   Just d ->
     case targetTile of
-      Void -> entity { pos = newPos d (pos entity) }
+      Void -> entity {pos = newPos d (pos entity)}
       _ -> entity
-      where
-        targetTile = tileAt world (newPos d (pos entity))
+    where
+      targetTile = tileAt world (newPos d (pos entity))
   where
     dir = eventToDirection event
 
