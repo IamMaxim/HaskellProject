@@ -17,7 +17,7 @@ import World
 -- | Generates the initial world state
 genWorld :: IO World
 genWorld = do
-  chunk <- genChunk (0, 0)
+  let chunk = genChunk (0, 0)
   return
     World
       { chunks = Data.Map.singleton (0, 0) chunk,
@@ -33,25 +33,20 @@ genWorld = do
       }
 
 -- | Generates a (for now) stub chunk of ground tiles.
-genChunk :: Coords -> IO Chunk
+genChunk :: Coords -> Chunk
 genChunk chunkCoords = do
-  -- r <- randomIO :: IO Double
-  -- g <- randomIO :: IO Double
-  -- b <- randomIO :: IO Double
-  -- let color = RGB r g b
-  return
-    Chunk
-      { backgroundTiles = perlinizeChunk chunkCoords (genTilesArray chunkSize Void),
-        tiles = genTilesArray chunkSize Void
-      }
+  Chunk
+    { backgroundTiles = perlinizeChunk chunkCoords (genTilesArray chunkSize Void),
+      tiles = genTilesArray chunkSize Void
+    }
 
 genTilesArray :: Int -> Tile -> Vector (Vector Tile)
 genTilesArray n t = Data.Vector.replicate n (Data.Vector.replicate n t)
 
 -- | Generates additional chunks as needed if there are not enough of them in the player range
-updateChunks :: Coords -> World -> IO World
+updateChunks :: Coords -> World -> World
 updateChunks coords world =
-  Control.Monad.foldM update world chunksToCheck
+  Prelude.foldr update world chunksToCheck
   where
     (px, py) = (coordToChunkCoord . pos . player) world
     chunksToCheck =
@@ -65,12 +60,10 @@ updateChunks coords world =
         (px + 1, py),
         (px + 1, py + 1)
       ]
-    update :: World -> Coords -> IO World
-    update = \world coords -> case Data.Map.lookup coords (chunks world) of
-      Just chunk -> return world
-      Nothing -> do
-        chunk <- genChunk coords
-        return world {chunks = insert coords chunk (chunks world)}
+    update :: Coords -> World -> World
+    update coords world = case Data.Map.lookup coords (chunks world) of
+      Just chunk -> world
+      Nothing -> world {chunks = insert coords (genChunk coords) (chunks world)}
 
 --------------------------------------------------------------------------------
 -- Perlin stuff
@@ -96,7 +89,7 @@ perlinizeChunk (cx, cy) tiles =
     ( \(y, ys) ->
         Data.Vector.map
           ( \(x, tile) ->
-              Ground (RGB (noiseAt (cx * chunkSize + x, cy * chunkSize + y)) 0 0)
+              sampleTile (noiseAt (cx * chunkSize + x, cy * chunkSize + y))
           )
           ys
     )
@@ -107,3 +100,23 @@ indexedTiles = indexed . Data.Vector.map indexed
 
 deindexedTiles :: Vector (Int, Vector (Int, Tile)) -> Vector (Vector Tile)
 deindexedTiles = Data.Vector.map (\(x, xs) -> Data.Vector.map snd xs)
+
+--------------------------------------------------------------------------------
+-- Converting noise value into tiles
+--------------------------------------------------------------------------------
+
+waterLevel = -0.9
+
+sandLevel = -0.7
+
+stoneLevel = 0.8
+
+sampleTile :: Double -> Tile
+sampleTile value
+  | value <= waterLevel = Water
+  | value <= sandLevel = Ground (RGB 1 0.84 0.4)
+  | value <= stoneLevel = Ground (grassColor value)
+  | otherwise = Ground (RGB 0.42 0.42 0.42)
+
+grassColor :: Double -> Color
+grassColor value = RGB (0.42 - value / 20) (0.65 - value / 10) 0.25

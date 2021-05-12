@@ -14,8 +14,8 @@ gameMain :: IO ()
 gameMain = do
   world <- genWorld
   -- Update the world once to generate more chunks around player
-  world <- updateChunks ((pos . player) world) world
-  activityOf world handleInput drawWorld
+  -- world <- updateChunks ((pos . player) world) world
+  activityOf (updateChunks ((pos . player) world) world) handleInput drawWorld
   -- let inventory = createTestInventory :: Inventory TestItem
   -- drawingOf (draw 0.0 world inventory)
 
@@ -24,6 +24,6 @@ drawWorld world = draw (time world) world world
 
 handleInput :: Event -> World -> World
 handleInput (TimePassing t) w = w {time = t}
-handleInput e w = w {player = newPlayer}
+handleInput e w = (updateChunks (pos (player w)) w) {player = newPlayer}
   where
     newPlayer = move e w (player w)
