@@ -41,7 +41,10 @@ genChunk chunkCoords = do
           chunkCoords
           (genTilesArray chunkSize Void),
       tiles =
-        perlinizeChunk putStones perlinObj chunkCoords
+        perlinizeChunk
+          putStones
+          perlinObj
+          chunkCoords
           (genTilesArray chunkSize Void)
     }
 
@@ -145,9 +148,8 @@ stoneLevel = 0.8
 sandColor :: Color
 sandColor = RGB 1 0.84 0.4
 
-stoneColor :: Color 
+stoneColor :: Color
 stoneColor = RGB 0.7 0.7 0.7
--- stoneColor = RGB 0.42 0.42 0.42
 
 sampleBackgroundTile :: Double -> Tile -> Tile
 sampleBackgroundTile value tile
