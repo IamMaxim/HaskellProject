@@ -36,8 +36,13 @@ genWorld = do
 genChunk :: Coords -> Chunk
 genChunk chunkCoords = do
   Chunk
-    { backgroundTiles = perlinizeChunk chunkCoords (genTilesArray chunkSize Void),
-      tiles = genTilesArray chunkSize Void
+    { backgroundTiles =
+        perlinizeChunkBackground
+          chunkCoords
+          (genTilesArray chunkSize Void),
+      tiles =
+        perlinizeChunk putStones perlinObj chunkCoords
+          (genTilesArray chunkSize Void)
     }
 
 genTilesArray :: Int -> Tile -> Vector (Vector Tile)
@@ -76,30 +81,56 @@ perlinObj ::
   Perlin
 perlinObj = Perlin 0.1 1 14 1
 
+perlinObj2 :: Int -> Perlin
+perlinObj2 = Perlin 0.1 1 64 1
+
 -- | Generates a noise value for the given coords.
-noiseAt :: Coords -> Double
-noiseAt (x, y) =
-  case getNoiseValue (perlinObj 123) [] (fromIntegral x, fromIntegral y, 0) of
+noiseAt :: (Int -> Perlin) -> Coords -> Double
+noiseAt perlin (x, y) =
+  case getNoiseValue (perlin 123) [] (fromIntegral x, fromIntegral y, 0) of
     Nothing -> -1
     Just d -> d
 
-perlinizeChunk :: Coords -> Vector (Vector Tile) -> Vector (Vector Tile)
-perlinizeChunk (cx, cy) tiles =
+perlinizeChunk ::
+  -- | Sample function for each tile
+  (Double -> Tile -> Tile) ->
+  -- | Perlin noise generator
+  (Int -> Perlin) ->
+  -- | Chunk coords
+  Coords ->
+  -- | Initial chunk tiles
+  Vector (Vector Tile) ->
+  Vector (Vector Tile)
+perlinizeChunk sampleFunc perlin = mapTiles (\(x, y) -> sampleFunc (noiseAt perlin (x, y)))
+
+perlinizeChunkBackground ::
+  -- | Chunk coords
+  Coords ->
+  -- | Initial chunk tiles
+  Vector (Vector Tile) ->
+  Vector (Vector Tile)
+perlinizeChunkBackground = perlinizeChunk sampleBackgroundTile perlinObj
+
+-- perlinizeChunkForeground :: Coords -> Vector (Vector Tile) -> Vector (Vector Tile)
+-- perlinizeChunkForeground = perlinizeChunk sampleForegroundTile perlinObj2
+
+indexedTiles :: Vector (Vector Tile) -> Vector (Int, Vector (Int, Tile))
+indexedTiles = indexed . Data.Vector.map indexed
+
+mapTiles :: ((Int, Int) -> Tile -> Tile) -> Coords -> Vector (Vector Tile) -> Vector (Vector Tile)
+mapTiles f (cx, cy) tiles =
   Data.Vector.map
     ( \(y, ys) ->
         Data.Vector.map
           ( \(x, tile) ->
-              sampleTile (noiseAt (cx * chunkSize + x, cy * chunkSize + y))
+              f (cx * chunkSize + x, cy * chunkSize + y) tile
           )
           ys
     )
     (indexedTiles tiles)
 
-indexedTiles :: Vector (Vector Tile) -> Vector (Int, Vector (Int, Tile))
-indexedTiles = indexed . Data.Vector.map indexed
-
-deindexedTiles :: Vector (Int, Vector (Int, Tile)) -> Vector (Vector Tile)
-deindexedTiles = Data.Vector.map (\(x, xs) -> Data.Vector.map snd xs)
+-- deindexedTiles :: Vector (Int, Vector (Int, Tile)) -> Vector (Vector Tile)
+-- deindexedTiles = Data.Vector.map (\(x, xs) -> Data.Vector.map snd xs)
 
 --------------------------------------------------------------------------------
 -- Converting noise value into tiles
@@ -111,8 +142,8 @@ sandLevel = -0.7
 
 stoneLevel = 0.8
 
-sampleTile :: Double -> Tile
-sampleTile value
+sampleBackgroundTile :: Double -> Tile -> Tile
+sampleBackgroundTile value tile
   | value <= waterLevel = Water
   | value <= sandLevel = Ground (RGB 1 0.84 0.4)
   | value <= stoneLevel = Ground (grassColor value)
@@ -120,3 +151,14 @@ sampleTile value
 
 grassColor :: Double -> Color
 grassColor value = RGB (0.42 - value / 20) (0.65 - value / 10) 0.25
+
+putStones :: Double -> Tile -> Tile
+putStones value tile
+  | value >= stoneLevel = Ground (RGB 0.7 0.7 0.7)
+  | otherwise = tile
+
+-- sampleForegroundTile :: Double -> Tile -> Tile
+-- sampleForegroundTile value tile
+--   | value >= stoneLevel = Ground (RGB 0.70 0.70 0.70)
+--   | value <= -0.95 = Wall (RGB 0.61 0.37 0.14)
+--   | otherwise = tile

@@ -65,7 +65,7 @@ clampCoordToChunk (cx, cy) = (cx `mod` chunkSize, cy `mod` chunkSize)
 tileAt :: World -> Coords -> Tile
 tileAt world coords = case chunk of
   Nothing -> Void
-  Just c -> tiles c ! cx ! cy
+  Just c -> tiles c ! cy ! cx
   where
     chunk :: Maybe Chunk
     chunk = Map.lookup (coordToChunkCoord coords) (chunks world)

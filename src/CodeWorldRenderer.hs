@@ -12,7 +12,7 @@ import System.Random
 import World
 
 renderRange :: Int
-renderRange = 20
+renderRange = 8 * 3
 
 -- | Defines a renderable object.
 class Drawable a where
@@ -63,10 +63,8 @@ instance Drawable World where
       -- True if given coords is not in render range and should be culled
       culled :: Coords -> Bool
       culled (x, y) =
-        x - cx - chunkSize < renderRange
-          && x - cx + chunkSize > renderRange
-          && y - cy - chunkSize < renderRange
-          && y - cy + chunkSize > renderRange
+        abs (x * chunkSize - cx) > renderRange
+          || abs (y * chunkSize - cy) > renderRange
         where
           (cx, cy) = centerPos
 
@@ -97,20 +95,22 @@ instance (Drawable item) => Drawable (Inventory item) where
   draw t w inventory = Prelude.foldr reducer blank itemDrawings
     where
       itemDrawings =
-        Data.Vector.imap (
-          \index maybeItem ->
+        Data.Vector.imap
+          ( \index maybeItem ->
               let ownPicture = case maybeItem of
                     Just item -> draw t w item
-                    Nothing  -> emptyInventoryItemPicture
+                    Nothing -> emptyInventoryItemPicture
                   active = index == activeItemIndex inventory
-                in (inventoryCell active <> ownPicture)) (items inventory)
+               in (inventoryCell active <> ownPicture)
+          )
+          (items inventory)
       reducer picture acc = picture <> translated 1 0 acc
 
 badge :: Picture -> Picture
 badge pic = translated 0.25 (-0.25) (scaled 0.3 0.3 pic)
 
 emptyInventoryItemPicture :: Picture
-emptyInventoryItemPicture = colored white (solidRectangle 1 1 )
+emptyInventoryItemPicture = colored white (solidRectangle 1 1)
 
 inventoryCell ::
   Bool -> -- is selected
