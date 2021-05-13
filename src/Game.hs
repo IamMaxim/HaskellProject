@@ -63,6 +63,7 @@ handleActiveInventorySwitch (KeyPress btn) world
   | otherwise = world
 handleActiveInventorySwitch _ world = world
 
+worldHandlers :: [Event -> World -> World]
 worldHandlers = [handleBlockChanging, handleActiveInventorySwitch, movePlayer]
 
 handleInput :: Event -> World -> World
