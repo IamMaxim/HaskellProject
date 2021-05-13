@@ -46,8 +46,10 @@ instance Drawable World where
       entitiesPicture =
         Prelude.foldMap drawEnt (entities world)
 
+      totalInventoryWidth = fromIntegral inventorySize * inventoryCellWidth
+
       playerInventory = draw t w (inventory (player world))
-      playerInventoryShifted = translated 0.0 (-9.0) playerInventory
+      playerInventoryShifted = translated (- totalInventoryWidth / 2) (-9.0) playerInventory
 
       tilesPicture =
         Prelude.foldMap
@@ -109,11 +111,17 @@ instance (Drawable item) => Drawable (Inventory item) where
 badge :: Picture -> Picture
 badge pic = translated 0.25 (-0.25) (scaled 0.3 0.3 pic)
 
+inventoryCellHeight :: Double
+inventoryCellHeight = 1
+
+inventoryCellWidth :: Double
+inventoryCellWidth = 1
+
 emptyInventoryItemPicture :: Picture
-emptyInventoryItemPicture = colored white (solidRectangle 1 1)
+emptyInventoryItemPicture = colored white (solidRectangle inventoryCellWidth inventoryCellHeight)
 
 inventoryCell ::
   Bool -> -- is selected
   Picture
-inventoryCell True = thickRectangle 0.05 1 1
-inventoryCell False = colored gray (rectangle 1 1)
+inventoryCell True = thickRectangle 0.05 inventoryCellWidth inventoryCellHeight
+inventoryCell False = colored gray (rectangle inventoryCellWidth inventoryCellHeight)
