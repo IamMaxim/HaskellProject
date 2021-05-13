@@ -11,7 +11,7 @@ data InventoryItem item  = InventoryItem {
 instance (Eq item) => Eq (InventoryItem item) where
   (==) iv1 iv2 = item iv1 == item iv2
 
-deriving instance (Show item) => Show (InventoryItem item)  
+deriving instance (Show item) => Show (InventoryItem item)
 
 data Inventory item = Inventory {
     activeItemIndex :: Int,
@@ -84,7 +84,7 @@ addItem inventory newItem = inventory { items = updatedItems }
                         _ -> inventoryItems
             Nothing -> case firstEmptyIndex of
                 Just emptyIndex -> inventoryItems // [(emptyIndex, Just newInventoryItem)]
-                    where 
+                    where
                         newInventoryItem = InventoryItem {
                             amount = 1,
                             item = newItem
@@ -108,3 +108,9 @@ removeItem inventory removingItem = inventory {items = updatedItems}
                 _ -> inventoryItems
             _ -> inventoryItems
 
+getActiveItem ::
+    Inventory item
+    -> Maybe item
+getActiveItem inventory = fmap item inventoryItemMaybe
+    where
+        inventoryItemMaybe = items inventory ! activeItemIndex inventory
