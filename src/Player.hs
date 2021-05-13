@@ -7,6 +7,11 @@ import World
 
 data MoveDirection = MoveUp | MoveDown | MoveLeft | MoveRight
 
+movePlayer :: Event -> World -> World
+movePlayer e world = world {player = newPlayer}
+  where
+    newPlayer = move e world (player world)
+
 move :: Event -> World -> Entity -> Entity
 move event world entity = case dir of
   Nothing -> entity

@@ -1,18 +1,16 @@
-{-# OPTIONS_GHC -Wno-deferred-type-errors #-}
 {-# LANGUAGE OverloadedStrings #-}
-
+{-# OPTIONS_GHC -Wno-deferred-type-errors #-}
 
 module Game where
 
 import CodeWorld
 import CodeWorldRenderer
+import Data.Text (pack, unpack)
+import Inventory
 import Player
 import System.IO.Unsafe (unsafePerformIO)
 import World
 import WorldGen
-import Inventory
-
-import Data.Text (pack)
 
 gameMain :: IO ()
 gameMain = do
@@ -20,16 +18,17 @@ gameMain = do
   -- Update the world once to generate more chunks around player
   -- world <- updateChunks ((pos . player) world) world
   activityOf (updateChunks ((pos . player) world) world) handleInput drawWorld
-  -- let inventory = createTestInventory :: Inventory TestItem
-  -- drawingOf (draw 0.0 world inventory)
+
+-- let inventory = createTestInventory :: Inventory TestItem
+-- drawingOf (draw 0.0 world inventory)
 
 drawWorld :: World -> Picture
 drawWorld world = draw (time world) world world
 
-handleBreaking :: Event -> World -> World
-handleBreaking (PointerRelease (px, py)) world
- | x == 0 && y == 0 = world -- clicked on itsself
- | otherwise = (updateTileAt world clickedTileCoords newTile){player=newPlayer}
+handleBlockChanging :: Event -> World -> World
+handleBlockChanging (PointerRelease (px, py)) world
+  | x == 0 && y == 0 = world -- clicked on itsself
+  | otherwise = (updateTileAt world clickedTileCoords newTile) {player = newPlayer}
   where
     x = round px
     y = round py
@@ -44,22 +43,29 @@ handleBreaking (PointerRelease (px, py)) world
     selectedInventoryItem = getActiveItem playerInventory
 
     (newTile, newInventory) = case clickedTile of
-        Void -> case selectedInventoryItem of -- build
-          Nothing -> (clickedTile, playerInventory) -- cannot build from active cell
-          Just item -> (item, removeItem playerInventory item)
-        tile -> (Void, addItem playerInventory tile)
-        
-    newPlayer=currentPlayer{inventory=newInventory}
+      Void -> case selectedInventoryItem of -- build
+        Nothing -> (clickedTile, playerInventory) -- cannot build from active cell
+        Just item -> (item, removeItem playerInventory item)
+      tile -> (Void, addItem playerInventory tile)
 
+    newPlayer = currentPlayer {inventory = newInventory}
+handleBlockChanging _ world = world
 
+handleActiveInventorySwitch :: Event -> World -> World
+handleActiveInventorySwitch (KeyPress btn) world
+  | "1" <= btn && btn <= "9" =
+    let targetSlot :: Int
+        targetSlot = (read . unpack) btn - 1
+        playerInventory = (inventory . player) world
+        newPlayerInventory = changeActiveItem playerInventory targetSlot
+        newPlayer = (player world) {inventory = newPlayerInventory}
+     in world {player = newPlayer}
+  | otherwise = world
+handleActiveInventorySwitch _ world = world
 
-handleBreaking _ world = world
+worldHandlers :: [Event -> World -> World]
+worldHandlers = [handleBlockChanging, handleActiveInventorySwitch, movePlayer]
 
 handleInput :: Event -> World -> World
 handleInput (TimePassing t) w = w {time = t}
-handleInput e w = breakingDone{player=moveDone}
-  where
-    chunksUpdated = updateChunks (pos (player w)) w
-    breakingDone = handleBreaking e chunksUpdated
-
-    moveDone = move e breakingDone (player breakingDone)
+handleInput e w = foldl (\currentWorld handler -> handler e currentWorld) w worldHandlers
