@@ -171,3 +171,10 @@ putStones value tile
 --   | value >= stoneLevel = Ground (RGB 0.70 0.70 0.70)
 --   | value <= -0.95 = Wall (RGB 0.61 0.37 0.14)
 --   | otherwise = tile
+
+--------------------------------------------------------------------------------
+-- Trees
+--------------------------------------------------------------------------------
+
+-- putTrees :: Vector (Vector Tile) -> Vector (Vector Tile)
+-- putTrees tiles = Vector

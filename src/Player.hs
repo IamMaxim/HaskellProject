@@ -4,11 +4,12 @@ module Player where
 
 import CodeWorld
 import World
+import WorldGen
 
 data MoveDirection = MoveUp | MoveDown | MoveLeft | MoveRight
 
 movePlayer :: Event -> World -> World
-movePlayer e world = world {player = newPlayer}
+movePlayer e world = (updateChunks (pos (player world)) world) {player = newPlayer}
   where
     newPlayer = move e world (player world)
 
