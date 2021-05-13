@@ -12,7 +12,7 @@ import System.Random
 import World
 
 renderRange :: Int
-renderRange = 20
+renderRange = 8 * 3
 
 -- | Defines a renderable object.
 class Drawable a where
@@ -27,6 +27,7 @@ instance Drawable Tile where
   draw t w Void = blank
   draw t w (Ground color) = colored color (solidRectangle 1 1)
   draw t w (Wall color) = colored color (solidRectangle 0.9 0.9)
+  draw t w Water = colored (RGB 0.16 0.49 (0.73 + sin t / 20)) (solidRectangle 1 1)
 
 instance Drawable Entity where
   draw t w entity = (lettering . symbol) entity
@@ -64,10 +65,8 @@ instance Drawable World where
       -- True if given coords is not in render range and should be culled
       culled :: Coords -> Bool
       culled (x, y) =
-        x - cx - chunkSize < renderRange
-          && x - cx + chunkSize > renderRange
-          && y - cy - chunkSize < renderRange
-          && y - cy + chunkSize > renderRange
+        abs (x * chunkSize - cx) > renderRange
+          || abs (y * chunkSize - cy) > renderRange
         where
           (cx, cy) = centerPos
 

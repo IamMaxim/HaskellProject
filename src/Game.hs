@@ -1,4 +1,6 @@
 {-# OPTIONS_GHC -Wno-deferred-type-errors #-}
+{-# LANGUAGE OverloadedStrings #-}
+
 
 module Game where
 
@@ -10,20 +12,54 @@ import World
 import WorldGen
 import Inventory
 
+import Data.Text (pack)
+
 gameMain :: IO ()
 gameMain = do
   world <- genWorld
   -- Update the world once to generate more chunks around player
-  world <- updateChunks ((pos . player) world) world
-  activityOf world handleInput drawWorld
+  -- world <- updateChunks ((pos . player) world) world
+  activityOf (updateChunks ((pos . player) world) world) handleInput drawWorld
   -- let inventory = createTestInventory :: Inventory TestItem
   -- drawingOf (draw 0.0 world inventory)
 
 drawWorld :: World -> Picture
 drawWorld world = draw (time world) world world
 
+handleBreaking :: Event -> World -> World
+handleBreaking (PointerRelease (px, py)) world
+ | x == 0 && y == 0 = world -- clicked on itsself
+ | otherwise = (updateTileAt world clickedTileCoords newTile){player=newPlayer}
+  where
+    x = round px
+    y = round py
+    currentPlayer = player world
+    (playerX, playerY) = pos currentPlayer
+    clickedTileCoords = (x + playerX, y + playerY)
+
+    clickedTile = tileAt world clickedTileCoords
+
+    playerInventory = inventory currentPlayer
+
+    selectedInventoryItem = getActiveItem playerInventory
+
+    (newTile, newInventory) = case clickedTile of
+        Void -> case selectedInventoryItem of -- build
+          Nothing -> (clickedTile, playerInventory) -- cannot build from active cell
+          Just item -> (item, removeItem playerInventory item)
+        tile -> (Void, addItem playerInventory tile)
+        
+    newPlayer=currentPlayer{inventory=newInventory}
+
+
+
+handleBreaking _ world = world
+
 handleInput :: Event -> World -> World
 handleInput (TimePassing t) w = w {time = t}
-handleInput e w = w {player = newPlayer}
+handleInput e w = breakingDone{player=moveDone}
   where
-    newPlayer = move e w (player w)
+    chunksUpdated = updateChunks (pos (player w)) w
+    breakingDone = handleBreaking e chunksUpdated
+
+    moveDone = move e breakingDone (player breakingDone)

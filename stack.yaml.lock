@@ -192,3 +192,10 @@ packages:
       sha256: 11121a60e271d7971b68d603e4727673e8ffb724c858106bb739997ae00e485a
       size: 3842
     hackage: vector-0.12.3.0@sha256:0ae2c1ba86f0077910be242ec6802cc3d7725fe7b2bea6987201aa3737b239b5,7953
+- original:
+    hackage: Noise-1.0.6
+  completed:
+    pantry-tree:
+      sha256: 27a9154935b4d30a22830477c60c5108fd713a184d456272c2fccbf361d2395f
+      size: 1176
+    hackage: Noise-1.0.6@sha256:7eb0d021e334ca2341a9cb51eac7d6f2c76b4e4e1a27264509b38264dc202b32,1994

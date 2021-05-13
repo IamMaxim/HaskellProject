@@ -24,7 +24,8 @@ sub :: Coords -> Coords -> Coords
 sub (x1, y1) (x2, y2) = (x1 - x2, y1 - y2)
 
 -- | Tile is a solid 1x1 unit that is strictly tied to the grid.
-data Tile = Void | Ground Color | Wall Color
+data Tile = Void | Ground Color | Wall Color | Water
+  deriving Eq
 
 type PlayerInventory = Inventory Tile
 
@@ -65,8 +66,25 @@ clampCoordToChunk (cx, cy) = (cx `mod` chunkSize, cy `mod` chunkSize)
 tileAt :: World -> Coords -> Tile
 tileAt world coords = case chunk of
   Nothing -> Void
-  Just c -> tiles c ! cx ! cy
+  Just c -> tiles c ! cy ! cx
   where
     chunk :: Maybe Chunk
     chunk = Map.lookup (coordToChunkCoord coords) (chunks world)
+    (cx, cy) = clampCoordToChunk coords
+
+updateTileAt :: World -> Coords -> Tile -> World
+updateTileAt world coords newTile = case maybeChunk of 
+  Nothing -> world
+  Just chunk -> world{chunks=modifiedChunks}
+    where
+      chunkTiles = tiles chunk 
+      chunkRow = chunkTiles ! cy
+
+      modifiedRow = chunkRow // [(cx, newTile)]
+      modifiedTiles = chunkTiles // [(cy, modifiedRow)]
+      modifiedChunk = chunk{tiles=modifiedTiles}
+
+      modifiedChunks = Map.insert (coordToChunkCoord coords) modifiedChunk (chunks world)
+  where
+    maybeChunk = Map.lookup (coordToChunkCoord coords) (chunks world)
     (cx, cy) = clampCoordToChunk coords
