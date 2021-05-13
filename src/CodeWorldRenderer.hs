@@ -5,9 +5,13 @@ module CodeWorldRenderer where
 import CodeWorld hiding (Vector)
 import Control.Monad
 import qualified Data.Map as Map
+import Data.Text (pack)
 import Data.Vector
+import Inventory
+import System.Random
 import World
 
+renderRange :: Int
 renderRange = 20
 
 -- | Defines a renderable object.
@@ -29,7 +33,7 @@ instance Drawable Entity where
 
 instance Drawable World where
   draw t w world =
-    playerPicture <> entitiesPicture <> tilesPicture
+    playerInventoryShifted <> playerPicture <> entitiesPicture <> tilesPicture
     where
       assocs = Prelude.zip filteredChunkCoords (Prelude.map (\coords -> chunks world Map.! coords) filteredChunkCoords)
 
@@ -40,6 +44,11 @@ instance Drawable World where
       playerPicture = draw t w (player world)
       entitiesPicture =
         Prelude.foldMap drawEnt (entities world)
+
+      totalInventoryWidth = fromIntegral inventorySize * inventoryCellWidth
+
+      playerInventory = draw t w (inventory (player world))
+      playerInventoryShifted = translated (- totalInventoryWidth / 2) (-9.0) playerInventory
 
       tilesPicture =
         Prelude.foldMap
@@ -75,3 +84,45 @@ instance Drawable Chunk where
                   (x, tile) <- Prelude.zip [0 ..] tileRow
               ]
          in pictures tilesDrawn
+
+instance (Drawable item) => Drawable (InventoryItem item) where
+  draw t w inventoryItem = badge (lettering itemAmountText) <> itemPicture
+    where
+      itemPicture = draw t w (item inventoryItem)
+      itemAmountText = pack (show (amount inventoryItem))
+
+instance Drawable TestItem where
+  draw t w (TestItem name) = colored yellow (solidRectangle 0.9 0.9)
+
+instance (Drawable item) => Drawable (Inventory item) where
+  draw t w inventory = Prelude.foldr reducer blank itemDrawings
+    where
+      itemDrawings =
+        Data.Vector.imap
+          ( \index maybeItem ->
+              let ownPicture = case maybeItem of
+                    Just item -> draw t w item
+                    Nothing -> emptyInventoryItemPicture
+                  active = index == activeItemIndex inventory
+               in (inventoryCell active <> ownPicture)
+          )
+          (items inventory)
+      reducer picture acc = picture <> translated 1 0 acc
+
+badge :: Picture -> Picture
+badge pic = translated 0.25 (-0.25) (scaled 0.3 0.3 pic)
+
+inventoryCellHeight :: Double
+inventoryCellHeight = 1
+
+inventoryCellWidth :: Double
+inventoryCellWidth = 1
+
+emptyInventoryItemPicture :: Picture
+emptyInventoryItemPicture = colored white (solidRectangle inventoryCellWidth inventoryCellHeight)
+
+inventoryCell ::
+  Bool -> -- is selected
+  Picture
+inventoryCell True = thickRectangle 0.05 inventoryCellWidth inventoryCellHeight
+inventoryCell False = colored gray (rectangle inventoryCellWidth inventoryCellHeight)

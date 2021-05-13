@@ -30,6 +30,7 @@ library
       Player
       World
       WorldGen
+      Inventory
   other-modules:
       Paths_HaskellDevEnv
   hs-source-dirs:

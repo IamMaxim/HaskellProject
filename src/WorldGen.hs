@@ -9,6 +9,9 @@ import Data.Vector
 import Data.Map
 import System.Random
 import World
+import CodeWorldRenderer
+
+import Inventory
 
 -- | Generates the initial world state
 genWorld :: IO World
@@ -21,7 +24,8 @@ genWorld = do
           Entity
             { pos = (0, 0),
               name = "Player",
-              symbol = "P"
+              symbol = "P",
+              inventory = emptyInventory
             },
         entities = [],
         time = 0
@@ -45,6 +49,7 @@ genTilesArray n t = Data.Vector.replicate n (Data.Vector.replicate n t)
 
 -- | Generates additional chunks as needed if there are not enough of them in the player range
 updateChunks :: Coords -> World -> IO World
+
 updateChunks coords world =
   Control.Monad.foldM update world chunksToCheck
   where
