@@ -18,18 +18,18 @@ import World
 genWorld :: World
 genWorld =
   let chunk = genChunk (0, 0)
-  in World
-    { chunks = Data.Map.singleton (0, 0) chunk,
-      player =
-        Entity
-          { pos = (0, 0),
-            name = "Player",
-            symbol = "P",
-            inventory = emptyInventory
-          },
-      entities = [],
-      time = 0
-    }
+   in World
+        { chunks = Data.Map.singleton (0, 0) chunk,
+          player =
+            Entity
+              { pos = (0, 0),
+                name = "Player",
+                symbol = "P",
+                inventory = emptyInventory
+              },
+          entities = [],
+          time = 0
+        }
 
 -- | Generates a (for now) stub chunk of ground tiles.
 genChunk :: Coords -> Chunk
@@ -131,9 +131,6 @@ mapTiles f (cx, cy) tiles =
     )
     (indexedTiles tiles)
 
--- deindexedTiles :: Vector (Int, Vector (Int, Tile)) -> Vector (Vector Tile)
--- deindexedTiles = Data.Vector.map (\(x, xs) -> Data.Vector.map snd xs)
-
 --------------------------------------------------------------------------------
 -- Converting noise value into tiles
 --------------------------------------------------------------------------------
@@ -164,12 +161,6 @@ putStones :: Double -> Tile -> Tile
 putStones value tile
   | value >= stoneLevel = Ground stoneColor
   | otherwise = tile
-
--- sampleForegroundTile :: Double -> Tile -> Tile
--- sampleForegroundTile value tile
---   | value >= stoneLevel = Ground (RGB 0.70 0.70 0.70)
---   | value <= -0.95 = Wall (RGB 0.61 0.37 0.14)
---   | otherwise = tile
 
 --------------------------------------------------------------------------------
 -- Trees

@@ -8,19 +8,15 @@ import CodeWorldRenderer
 import Data.Text (pack, unpack)
 import Inventory
 import Player
-import System.IO.Unsafe (unsafePerformIO)
 import World
 import WorldGen
 
 gameMain :: IO ()
 gameMain =
   let world = genWorld
-  -- Update the world once to generate more chunks around player
-  -- world <- updateChunks ((pos . player) world) world
-  in activityOf (updateChunks ((pos . player) world) world) handleInput drawWorld
+   in -- Update the world once to generate more chunks around player
+      activityOf (updateChunks ((pos . player) world) world) handleInput drawWorld
 
--- let inventory = createTestInventory :: Inventory TestItem
--- drawingOf (draw 0.0 world inventory)
 
 drawWorld :: World -> Picture
 drawWorld world = draw (time world) world world

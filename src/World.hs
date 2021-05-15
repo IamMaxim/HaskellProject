@@ -4,9 +4,9 @@
 module World where
 
 import CodeWorld hiding (Vector)
-import Data.Vector
 import qualified Data.Map as Map
 import Data.Text hiding (filter)
+import Data.Vector
 import Inventory
 
 chunkSize :: Int
@@ -25,7 +25,7 @@ sub (x1, y1) (x2, y2) = (x1 - x2, y1 - y2)
 
 -- | Tile is a solid 1x1 unit that is strictly tied to the grid.
 data Tile = Void | Ground Color | Wall Color | Water
-  deriving Eq
+  deriving (Eq)
 
 type PlayerInventory = Inventory Tile
 
@@ -34,13 +34,12 @@ data Entity = Entity
   { pos :: Coords,
     name :: String,
     symbol :: Text,
-    inventory :: PlayerInventory 
+    inventory :: PlayerInventory
   }
 
 -- | 32x32 set of tiles. Used as a atomic unit of world generation/loading.
 data Chunk = Chunk
-  {
-    backgroundTiles :: Vector (Vector Tile),
+  { backgroundTiles :: Vector (Vector Tile),
     tiles :: Vector (Vector Tile)
   }
 
@@ -73,16 +72,16 @@ tileAt world coords = case chunk of
     (cx, cy) = clampCoordToChunk coords
 
 updateTileAt :: World -> Coords -> Tile -> World
-updateTileAt world coords newTile = case maybeChunk of 
+updateTileAt world coords newTile = case maybeChunk of
   Nothing -> world
-  Just chunk -> world{chunks=modifiedChunks}
+  Just chunk -> world {chunks = modifiedChunks}
     where
-      chunkTiles = tiles chunk 
+      chunkTiles = tiles chunk
       chunkRow = chunkTiles ! cy
 
       modifiedRow = chunkRow // [(cx, newTile)]
       modifiedTiles = chunkTiles // [(cy, modifiedRow)]
-      modifiedChunk = chunk{tiles=modifiedTiles}
+      modifiedChunk = chunk {tiles = modifiedTiles}
 
       modifiedChunks = Map.insert (coordToChunkCoord coords) modifiedChunk (chunks world)
   where
