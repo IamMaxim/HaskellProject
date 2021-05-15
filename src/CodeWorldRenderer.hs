@@ -27,7 +27,10 @@ instance Drawable Tile where
   draw t w Void = blank
   draw t w (Ground color) = colored color (solidRectangle 1 1)
   draw t w (Wall color) = colored color (solidRectangle 0.9 0.9)
-  draw t w Water = colored (RGB 0.16 0.49 (0.73 + sin t / 20)) (solidRectangle 1 1)
+  draw t w Water =
+    translated (-0.2) 0.3 (colored (RGB 0.3 (0.6 + sin (2 * t) / 20) (0.73 + sin (2 * t) / 20)) (solidRectangle 0.4 0.1))
+    <> translated 0.25 (-0.2) (colored (RGB 0.3 (0.6 + sin (2 * t) / 20) (0.73 + sin (2 * t) / 20)) (solidRectangle 0.4 0.1))
+    <> colored (RGB 0.16 0.49 (0.73 + sin t / 10)) (solidRectangle 1 1)
 
 instance Drawable Entity where
   draw t w entity = (lettering . symbol) entity

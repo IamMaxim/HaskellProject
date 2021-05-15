@@ -67,5 +67,5 @@ worldHandlers :: [Event -> World -> World]
 worldHandlers = [handleBlockChanging, handleActiveInventorySwitch, movePlayer]
 
 handleInput :: Event -> World -> World
-handleInput (TimePassing t) w = w {time = t}
+handleInput (TimePassing t) w = w {time = time w + t}
 handleInput e w = foldl (\currentWorld handler -> handler e currentWorld) w worldHandlers
