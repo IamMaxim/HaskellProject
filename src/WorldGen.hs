@@ -24,7 +24,7 @@ genWorld =
             Entity
               { pos = (0, 0),
                 name = "Player",
-                symbol = "P",
+                symbol = "🧍",
                 inventory = emptyInventory
               },
           entities = [],
