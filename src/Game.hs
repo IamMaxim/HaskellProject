@@ -13,11 +13,11 @@ import World
 import WorldGen
 
 gameMain :: IO ()
-gameMain = do
-  world <- genWorld
+gameMain =
+  let world = genWorld
   -- Update the world once to generate more chunks around player
   -- world <- updateChunks ((pos . player) world) world
-  activityOf (updateChunks ((pos . player) world) world) handleInput drawWorld
+  in activityOf (updateChunks ((pos . player) world) world) handleInput drawWorld
 
 -- let inventory = createTestInventory :: Inventory TestItem
 -- drawingOf (draw 0.0 world inventory)

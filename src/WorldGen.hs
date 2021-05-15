@@ -15,22 +15,21 @@ import System.Random
 import World
 
 -- | Generates the initial world state
-genWorld :: IO World
-genWorld = do
+genWorld :: World
+genWorld =
   let chunk = genChunk (0, 0)
-  return
-    World
-      { chunks = Data.Map.singleton (0, 0) chunk,
-        player =
-          Entity
-            { pos = (0, 0),
-              name = "Player",
-              symbol = "P",
-              inventory = emptyInventory
-            },
-        entities = [],
-        time = 0
-      }
+  in World
+    { chunks = Data.Map.singleton (0, 0) chunk,
+      player =
+        Entity
+          { pos = (0, 0),
+            name = "Player",
+            symbol = "P",
+            inventory = emptyInventory
+          },
+      entities = [],
+      time = 0
+    }
 
 -- | Generates a (for now) stub chunk of ground tiles.
 genChunk :: Coords -> Chunk
