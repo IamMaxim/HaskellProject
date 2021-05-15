@@ -1,5 +1,8 @@
 # DevEnv
 
+![image](https://user-images.githubusercontent.com/16958474/118358083-ead46d00-b585-11eb-830a-c10c1028718f.png)
+
+
 ## Setting up environment on Arch Linux
 
 First of all, install required packages:
